@@ -1,17 +1,28 @@
 import { Button, Card, Form, Input, Typography, message } from "antd";
-// import { api } from "../api/axios";
+import { useLogin } from "../../hooks/useLogin";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
 export default function Login() {
-  const onFinish = async () => {
+  const navigate = useNavigate();
+  const loginMutation = useLogin(); 
+
+
+  const isLoading = loginMutation.isPending;
+
+  const onFinish = async (values: any) => {
     try {
-      // const res = await api.post("/auth/login", values);
-      // localStorage.setItem("token", res.data.access_token);
-      // message.success("Login Successful");
-      // window.location.href = "/products";
+      await loginMutation.mutateAsync({
+        email: values.email,
+        password: values.password,
+      });
+
+      message.success("Login Successful");
+      navigate("/dashboard", { replace: true });
     } catch (err: any) {
-      message.error(err?.response?.data?.message || "Login Failed");
+      console.error("Login Error:", err);
+      message.error(err?.response?.data?.message || err?.message || "Login Failed");
     }
   };
 
@@ -27,12 +38,22 @@ export default function Login() {
       }}
     >
       <Card
-        style={{ width: 400, borderRadius: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
+        style={{
+          width: 400,
+          borderRadius: 12,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+        }}
       >
         <Title level={3} style={{ textAlign: "center", marginBottom: 24 }}>
           POS Login
         </Title>
-        <Form layout="vertical" onFinish={onFinish}>
+        
+        {/* Added disabled={isLoading} to the Form to prevent interaction during login */}
+        <Form 
+          layout="vertical" 
+          onFinish={onFinish} 
+          disabled={isLoading}
+        >
           <Form.Item
             label="Email"
             name="email"
@@ -53,8 +74,14 @@ export default function Login() {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block size="large">
-              Login
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              size="large"
+              loading={isLoading} 
+            >
+              {isLoading ? "Logging in..." : "Login"}
             </Button>
           </Form.Item>
         </Form>

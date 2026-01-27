@@ -1,15 +1,22 @@
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider     = "prisma-client"
+  output       = "./client"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
+  id       Int    @id @default(autoincrement())
+  email    String @unique
   password String
 }
 
@@ -23,9 +30,9 @@ model Product {
   updatedAt      DateTime @updatedAt
 }
 
-model Sale {
-  id        Int       @id @default(autoincrement())
-  date      DateTime  @default(now())
-  total     Float
-  items     Json  
+model OrderData {
+  id    Int      @id @default(autoincrement())
+  date  DateTime @default(now())
+  total Int
+  data  Json
 }

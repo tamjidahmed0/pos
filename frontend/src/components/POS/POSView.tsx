@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
-import { Card, Row, Col, Input, Divider, Space, Button, Badge, Empty, Typography, Tag, message, Modal } from 'antd';
-import { ShoppingCartOutlined, PlusOutlined, MinusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { usePOSStore } from '../../store/usePOSStore';
+import {
+  Card, Row, Col, Input, Divider, Space, Button, Badge, Empty, Typography, Tag, message, Modal,
+  Skeleton
+} from 'antd';
+import {
+  ShoppingCartOutlined, PlusOutlined, MinusOutlined, DeleteOutlined
+} from '@ant-design/icons';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAllProducts } from '../../../hooks/useAllProducts';
+import { useCompleteSale } from '../../../hooks/useCompleteSale';
+import type { Product, CartItem } from '../../types';
 
 const { Text, Title } = Typography;
 
 const POS: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const products = usePOSStore((state) => state.products);
-  const cart = usePOSStore((state) => state.cart);
-  const addToCart = usePOSStore((state) => state.addToCart);
-  const removeFromCart = usePOSStore((state) => state.removeFromCart);
-  const updateCartQuantity = usePOSStore((state) => state.updateCartQuantity);
-  const clearCart = usePOSStore((state) => state.clearCart);
-  const completeSale = usePOSStore((state) => state.completeSale);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const queryClient = useQueryClient();
 
+  const { data, isLoading, error } = useAllProducts();
+  const products: Product[] = data || [];
+  const completeSaleMutation = useCompleteSale();
 
   const filteredProducts = products.filter(
     (p) =>
@@ -24,6 +30,67 @@ const POS: React.FC = () => {
 
   const cartSubtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
+
+
+
+  const addToCart = (product: Product) => {
+    if (product.stock_quantity === 0) {
+      message.error('Product is out of stock!');
+      return;
+    }
+
+    setCart((prev) => {
+      const existing = prev.find((i) => i.id === product.id);
+      if (existing) {
+        if (existing.quantity >= product.stock_quantity) {
+          message.warning(`Cannot add more than available stock (${product.stock_quantity})`);
+          return prev;
+        }
+        return prev.map((i) =>
+          i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i
+        );
+      } else {
+        return [...prev, { ...product, quantity: 1 }];
+      }
+    });
+  };
+
+
+
+
+
+  const removeFromCart = (id: number) => {
+    setCart((prev) => prev.filter((i) => i.id !== id));
+  };
+
+
+
+
+
+  const updateCartQuantity = (id: number, quantity: number) => {
+    setCart((prev) =>
+      prev.map((i) => {
+        if (i.id === id) {
+          const product = products.find(p => p.id === id);
+          if (!product) return i;
+          const newQuantity = Math.min(quantity, product.stock_quantity);
+          if (newQuantity < quantity) {
+            message.warning(`Maximum stock is ${product.stock_quantity}`);
+          }
+          return { ...i, quantity: newQuantity };
+        }
+        return i;
+      })
+    );
+  };
+
+
+
+
+
+
+
+  const clearCart = () => setCart([]);
 
   const handleCompleteSale = () => {
     if (cart.length === 0) {
@@ -35,17 +102,45 @@ const POS: React.FC = () => {
       title: 'Complete Sale',
       content: `Total amount: ৳${cartSubtotal.toLocaleString()}. Do you want to complete this sale?`,
       onOk: () => {
-        const sale = completeSale();
-        if (sale) {
-          message.success('Sale completed successfully!');
-        }
+        completeSaleMutation.mutate(
+          {
+            id: Date.now(),
+            date: new Date().toISOString(),
+            items: cart,
+            total: cartSubtotal,
+          },
+          {
+            onSuccess: () => {
+              message.success({ content: 'Sale completed!', key: 'sale', duration: 2 });
+              queryClient.invalidateQueries({ queryKey: ['allProducts'] });
+              clearCart(); // Clear cart after successful sale
+            },
+            onError: (error: any) => {
+              message.error({ content: error.message || 'Failed to complete sale', key: 'sale' });
+            },
+          }
+        );
       },
     });
   };
 
+  if (isLoading) {
+    return (
+      <Row gutter={[16, 16]}>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Col xs={12} sm={8} md={6} key={i}>
+            <Card>
+              <Skeleton active />
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    );
+  }
+  if (error) return <p>Error loading products</p>;
+
   return (
     <Row gutter={[16, 16]}>
-
       {/* Products List */}
       <Col xs={24} lg={16}>
         <Card title="Products">
@@ -60,10 +155,7 @@ const POS: React.FC = () => {
               <Col xs={12} sm={8} md={6} key={p.id}>
                 <Card
                   hoverable
-                  onClick={() => {
-                    addToCart(p);
-                    p.stock_quantity === 0 && message.error('Product is out of stock!');
-                  }}
+                  onClick={() => addToCart(p)}
                   style={{ opacity: p.stock_quantity === 0 ? 0.5 : 1 }}
                 >
                   <div style={{ textAlign: 'center' }}>
@@ -119,7 +211,9 @@ const POS: React.FC = () => {
                 <span style={{ color: '#1890ff' }}>৳{cartSubtotal.toLocaleString()}</span>
               </div>
               <Space direction="vertical" style={{ width: '100%', marginTop: 12 }}>
-                <Button type="primary" block onClick={handleCompleteSale}>Complete Sale</Button>
+                <Button type="primary" block onClick={handleCompleteSale} loading={completeSaleMutation.isPending}>
+                  Complete Sale
+                </Button>
                 <Button block onClick={clearCart}>Clear Cart</Button>
               </Space>
             </>

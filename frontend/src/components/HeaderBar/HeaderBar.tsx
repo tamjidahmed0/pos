@@ -1,12 +1,23 @@
 import React from 'react';
-import { Layout, Avatar, Button, Space, Typography} from 'antd';
+import { Layout, Avatar, Button, Space, Typography } from 'antd';
 import { ShopOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 
 const { Header } = Layout;
 const { Title, Text } = Typography;
 
 const HeaderBar: React.FC = () => {
+  const navigate = useNavigate();
+
+
+  const handleLogout = () => {
+    Cookies.remove("access_token");
+    navigate("/", { replace: true });
+  }
+
+
 
 
   return (
@@ -38,9 +49,9 @@ const HeaderBar: React.FC = () => {
           <Avatar icon={<UserOutlined />} />
           <div style={{ color: '#fff', lineHeight: 1.2 }}>
             <div style={{ fontWeight: 600 }}>Admin User</div>
-            <Text style={{ fontSize: 12, opacity: 0.8 }}>admin@posbuzz.com</Text>
+
           </div>
-          <Button type="text" icon={<LogoutOutlined />} style={{ color: '#fff' }} />
+          <Button type="text" icon={<LogoutOutlined />} style={{ color: '#fff' }} onClick={handleLogout} />
         </Space>
       </Header>
 

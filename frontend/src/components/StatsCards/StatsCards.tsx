@@ -1,25 +1,17 @@
 import React from 'react';
 import { Card, Row, Col, Statistic } from 'antd';
 import { AppstoreOutlined, RiseOutlined, TransactionOutlined } from '@ant-design/icons';
-import { usePOSStore } from '../../store/usePOSStore';
-
+import { useStats } from '../../../hooks/useStats';
 
 const StatsCards: React.FC = () => {
-  const { products, salesHistory } = usePOSStore();
+  const { data } = useStats();
+  const totalSales = data?.totalSalseAmount
 
-  const totalSales = salesHistory.reduce(
-    (sum, sale) => sum + sale.total,
-    0
-  );
+  const totalProducts = data?.totalProducts;
 
-  const totalProducts = products.length;
+  const totalStock = data?.totalStock
 
-  const totalStock = products.reduce(
-    (sum, product) => sum + product.stock_quantity,
-    0
-  );
-
-  const totalTransactions = salesHistory.length;
+  const totalTransactions = data?.totalTransactions;
 
   return (
     <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
@@ -30,7 +22,7 @@ const StatsCards: React.FC = () => {
             value={totalSales}
             prefix="৳"
             valueStyle={{ color: '#3f8600' }}
-            
+
           />
         </Card>
       </Col>

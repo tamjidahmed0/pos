@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { Button, Card, message, Modal, Space, Table, Tag, Input, InputNumber } from 'antd';
+import { Button, Card, message, Modal, Space, Table, Tag, Input, InputNumber, Spin } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import type { Product, ProductFormData } from '../../types';
-import { usePOSStore } from '../../store/usePOSStore';
-
-
+import { useAllProducts } from '../../../hooks/useAllProducts';
+import { useAddProduct } from '../../../hooks/useAddProduct';
+import { useUpdateProduct } from '../../../hooks/useUpdateProduct';
+import { useDeleteProduct } from '../../../hooks/useDeleteProduct';
 
 const Products: React.FC = () => {
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const { data, isLoading, error } = useAllProducts();
+    const products: Product[] = data || [];
     const [formData, setFormData] = useState<ProductFormData>({
         name: '',
         sku: '',
@@ -16,10 +19,14 @@ const Products: React.FC = () => {
         stock_quantity: 0,
     });
 
-    const products = usePOSStore((state) => state.products);
-    const setProducts = usePOSStore((state) => state.setProducts);
-    const updateProducts = usePOSStore((state) => state.updateProduct);
+    const addMutation = useAddProduct();
+    const updateMutation = useUpdateProduct();
+    const deleteMutation = useDeleteProduct();
 
+    const isProcessing = updateMutation.status === 'pending';
+
+    if (isLoading) return <p>Loading products...</p>;
+    if (error) return <p>Error loading products</p>;
 
     // Show Modal
     const showModal = (product?: Product) => {
@@ -42,32 +49,58 @@ const Products: React.FC = () => {
         }
 
         if (editingProduct) {
-            // Edit
-            updateProducts(editingProduct.id, formData);
-            message.success('Product updated successfully!');
+            updateMutation.mutate(
+                { id: editingProduct.id, data: formData },
+                {
+                    onSuccess: () => {
+                        message.success('Product updated successfully!');
+                        setIsModalVisible(false);
+                    },
+                    onError: (error) => {
+                        message.error('Failed to update product');
+                        console.error(error);
+                    },
+                }
+            );
         } else {
-            // Add
-            const newProduct: Product = { id: products.length + 1, ...formData };
-            setProducts([...products, newProduct]);
-            message.success('Product added successfully!');
+            addMutation.mutate(formData, {
+                onSuccess: () => {
+                    message.success('Product added successfully!');
+                    setIsModalVisible(false);
+                },
+                onError: (error) => {
+                    message.error('Failed to add product');
+                    console.error(error);
+                },
+            });
         }
 
-        setIsModalVisible(false);
         setFormData({ name: '', sku: '', price: 0, stock_quantity: 0 });
         setEditingProduct(null);
     };
 
-    // Delete
+
+
     const handleDelete = (id: number) => {
         Modal.confirm({
             title: 'Delete Product',
             content: 'Are you sure you want to delete this product?',
             onOk: () => {
-                setProducts(products.filter(p => p.id !== id));
-                message.success('Product deleted successfully!');
+                deleteMutation.mutate(id, {
+                    onSuccess: () => {
+                        message.success('Product deleted successfully!');
+                    },
+                    onError: () => {
+                        message.error('Failed to delete product');
+                    }
+                });
             },
         });
     };
+
+
+
+
 
     const productColumns = [
         { title: 'Product Name', dataIndex: 'name', key: 'name' },
@@ -96,23 +129,32 @@ const Products: React.FC = () => {
             </Card>
 
             {/* Modal */}
-            <Modal title={editingProduct ? 'Edit Product' : 'Add Product'} open={isModalVisible} onOk={handleOk} onCancel={() => setIsModalVisible(false)}>
+            <Modal
+                title={editingProduct ? 'Edit Product' : 'Add Product'}
+                open={isModalVisible}
+                onOk={handleOk}
+                onCancel={() => setIsModalVisible(false)}
+                okButtonProps={{ disabled: isProcessing }}
+                cancelButtonProps={{ disabled: isProcessing }}
+            >
                 <div style={{ marginBottom: 16 }}>
                     <label>Product Name</label>
-                    <Input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="Enter product name" />
+                    <Input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="Enter product name" disabled={isProcessing} />
                 </div>
                 <div style={{ marginBottom: 16 }}>
                     <label>SKU</label>
-                    <Input value={formData.sku} onChange={e => setFormData({ ...formData, sku: e.target.value })} placeholder="Enter SKU" />
+                    <Input value={formData.sku} onChange={e => setFormData({ ...formData, sku: e.target.value })} placeholder="Enter SKU" disabled={isProcessing} />
                 </div>
                 <div style={{ marginBottom: 16 }}>
                     <label>Price (৳)</label>
-                    <InputNumber style={{ width: '100%' }} value={formData.price} onChange={value => setFormData({ ...formData, price: value || 0 })} min={0} />
+                    <InputNumber style={{ width: '100%' }} value={formData.price} onChange={value => setFormData({ ...formData, price: value || 0 })} min={0} disabled={isProcessing} />
                 </div>
                 <div style={{ marginBottom: 16 }}>
                     <label>Stock Quantity</label>
-                    <InputNumber style={{ width: '100%' }} value={formData.stock_quantity} onChange={value => setFormData({ ...formData, stock_quantity: value || 0 })} min={0} />
+                    <InputNumber style={{ width: '100%' }} value={formData.stock_quantity} onChange={value => setFormData({ ...formData, stock_quantity: value || 0 })} min={0} disabled={isProcessing} />
                 </div>
+
+                {isProcessing && <div style={{ textAlign: 'center', marginTop: 10 }}><Spin tip="Processing..." /></div>}
             </Modal>
         </>
     );

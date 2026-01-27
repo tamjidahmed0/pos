@@ -16,7 +16,6 @@ const { Content } = Layout;
 
 
 const POSApp: React.FC = () => {
-
   const [currentView, setCurrentView] = useState<string>('pos');
 
 
