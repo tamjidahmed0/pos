@@ -1,0 +1,324 @@
+{
+  "info": {
+    "name": "Pos system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "create user (optional)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "",
+        "url": {
+          "raw": "https://pos.tamjidahmed.com/auth/create-user",
+          "protocol": "https",
+          "host": [
+            "pos",
+            "tamjidahmed",
+            "com"
+          ],
+          "path": [
+            "auth",
+            "create-user"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"tamjid@gmail.com\",\n  \"password\": \"123456\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "",
+        "url": {
+          "raw": "https://pos.tamjidahmed.com/auth/sign-in",
+          "protocol": "https",
+          "host": [
+            "pos",
+            "tamjidahmed",
+            "com"
+          ],
+          "path": [
+            "auth",
+            "sign-in"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"tamjid@gmail.com\",\n  \"password\": \"123456\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Create Product",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRhbWppZEBnbWFpbC5jb20iLCJpYXQiOjE3Njk1ODY2MTcsImV4cCI6MTc2OTU4ODQxN30.EDei4HX1ByhtmjsnAEf34P2LCDFiImEqmb_rkiy_6D0",
+            "disabled": false,
+            "type": "default"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "",
+        "url": {
+          "raw": "https://pos.tamjidahmed.com/product/create",
+          "protocol": "https",
+          "host": [
+            "pos",
+            "tamjidahmed",
+            "com"
+          ],
+          "path": [
+            "product",
+            "create"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Samsung Galaxy S24\",\n  \"sku\": \"S24-BLK-256\",\n  \"price\": 125000,\n  \"stock_quantity\": 15\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Get all product",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRhbWppZEBnbWFpbC5jb20iLCJpYXQiOjE3Njk1ODY2MTcsImV4cCI6MTc2OTU4ODQxN30.EDei4HX1ByhtmjsnAEf34P2LCDFiImEqmb_rkiy_6D0",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "https://pos.tamjidahmed.com/product/all",
+          "protocol": "https",
+          "host": [
+            "pos",
+            "tamjidahmed",
+            "com"
+          ],
+          "path": [
+            "product",
+            "all"
+          ],
+          "query": [],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "Update Product",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRhbWppZEBnbWFpbC5jb20iLCJpYXQiOjE3Njk1ODY2MTcsImV4cCI6MTc2OTU4ODQxN30.EDei4HX1ByhtmjsnAEf34P2LCDFiImEqmb_rkiy_6D0",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "https://pos.tamjidahmed.com/product/1",
+          "protocol": "https",
+          "host": [
+            "pos",
+            "tamjidahmed",
+            "com"
+          ],
+          "path": [
+            "product",
+            "1"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\" : \"Samsung Galaxy S24\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product delete by id",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRhbWppZEBnbWFpbC5jb20iLCJpYXQiOjE3Njk1ODY2MTcsImV4cCI6MTc2OTU4ODQxN30.EDei4HX1ByhtmjsnAEf34P2LCDFiImEqmb_rkiy_6D0",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "https://pos.tamjidahmed.com/product/1",
+          "protocol": "https",
+          "host": [
+            "pos",
+            "tamjidahmed",
+            "com"
+          ],
+          "path": [
+            "product",
+            "1"
+          ],
+          "query": [],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "Get sales history",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRhbWppZEBnbWFpbC5jb20iLCJpYXQiOjE3Njk1ODY2MTcsImV4cCI6MTc2OTU4ODQxN30.EDei4HX1ByhtmjsnAEf34P2LCDFiImEqmb_rkiy_6D0",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "https://pos.tamjidahmed.com/sales/history",
+          "protocol": "https",
+          "host": [
+            "pos",
+            "tamjidahmed",
+            "com"
+          ],
+          "path": [
+            "sales",
+            "history"
+          ],
+          "query": [],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "Sales complete",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRhbWppZEBnbWFpbC5jb20iLCJpYXQiOjE3Njk1ODY2MTcsImV4cCI6MTc2OTU4ODQxN30.EDei4HX1ByhtmjsnAEf34P2LCDFiImEqmb_rkiy_6D0",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "https://pos.tamjidahmed.com/sales/complete",
+          "protocol": "https",
+          "host": [
+            "pos",
+            "tamjidahmed",
+            "com"
+          ],
+          "path": [
+            "sales",
+            "complete"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": 1769421362950,\n  \"date\": \"2026-01-26T09:56:02.950Z\",\n  \"items\": [\n    {\n      \"id\": 3,\n      \"name\": \"Nokia\",\n      \"sku\": \"nk-1234\",\n      \"price\": 10,\n      \"stock_quantity\": 9,\n      \"quantity\": 1\n    }\n  ],\n  \"total\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Get Stats",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRhbWppZEBnbWFpbC5jb20iLCJpYXQiOjE3Njk1ODY2MTcsImV4cCI6MTc2OTU4ODQxN30.EDei4HX1ByhtmjsnAEf34P2LCDFiImEqmb_rkiy_6D0",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "https://pos.tamjidahmed.com/stats",
+          "protocol": "https",
+          "host": [
+            "pos",
+            "tamjidahmed",
+            "com"
+          ],
+          "path": [
+            "stats"
+          ],
+          "query": [],
+          "variable": []
+        }
+      }
+    }
+  ],
+  "variable": []
+}
