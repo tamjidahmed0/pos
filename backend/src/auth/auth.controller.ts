@@ -36,14 +36,14 @@ export class AuthController {
         const { email, password } = body;
         const user = await this.authService.signIn({ email, password });
         if (!user) {
-            return { message: 'Invalid email or password' };
+            return { message: 'Invalid email or password', status: 401 };
         }
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return { message: 'Invalid email or password' };
+            return { message: 'Invalid email or password', status: 401 };
         }
-        
-        return { message: 'Sign-in successful', id: user.id, email: user.email, access_token: await this.jwtService.signAsync({email: user.email}), };
+
+        return { message: 'Sign-in successful', id: user.id, email: user.email, access_token: await this.jwtService.signAsync({ email: user.email }), status:200 };
     }
 
 }

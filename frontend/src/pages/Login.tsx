@@ -1,25 +1,34 @@
 import { Button, Card, Form, Input, Typography, message } from "antd";
 import { useLogin } from "../../hooks/useLogin";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const { Title } = Typography;
 
 export default function Login() {
   const navigate = useNavigate();
-  const loginMutation = useLogin(); 
+  const loginMutation = useLogin();
 
 
   const isLoading = loginMutation.isPending;
 
   const onFinish = async (values: any) => {
     try {
-      await loginMutation.mutateAsync({
+      const result = await loginMutation.mutateAsync({
         email: values.email,
         password: values.password,
       });
 
-      message.success("Login Successful");
-      navigate("/dashboard", { replace: true });
+      if (result.status === 200) {
+        Cookies.set('access_token', result.access_token, { expires: 1 / 48 }) // 30 min
+        message.success("Login Successful");
+        navigate("/dashboard", { replace: true });
+      } else if (result.status === 401) {
+        message.error(result.message)
+      } else {
+        message.error("Something went wrong!")
+      }
+
     } catch (err: any) {
       console.error("Login Error:", err);
       message.error(err?.response?.data?.message || err?.message || "Login Failed");
@@ -47,11 +56,11 @@ export default function Login() {
         <Title level={3} style={{ textAlign: "center", marginBottom: 24 }}>
           POS Login
         </Title>
-        
+
         {/* Added disabled={isLoading} to the Form to prevent interaction during login */}
-        <Form 
-          layout="vertical" 
-          onFinish={onFinish} 
+        <Form
+          layout="vertical"
+          onFinish={onFinish}
           disabled={isLoading}
         >
           <Form.Item
@@ -79,7 +88,7 @@ export default function Login() {
               htmlType="submit"
               block
               size="large"
-              loading={isLoading} 
+              loading={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}
             </Button>
